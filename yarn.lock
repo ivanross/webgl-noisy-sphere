@@ -5622,6 +5622,21 @@ getpass@^0.1.1:
   dependencies:
     assert-plus "^1.0.0"
 
+gl-mat3@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/gl-mat3/-/gl-mat3-2.0.0.tgz#0a18d97bfdd57b1d777828286f05acb0fa880783"
+  integrity sha512-/RfKyizhztkG+gH07lA0/OI9uXVEqDrvjza1U8kZc3Sjvn/iT1a99jyL1WtLzXMn/BYp0geE2/DsNp9GCXp28Q==
+
+gl-mat4@^1.1.4, gl-mat4@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/gl-mat4/-/gl-mat4-1.2.0.tgz#49d8a7636b70aa00819216635f4a3fd3f4669b26"
+  integrity sha512-sT5C0pwB1/e9G9AvAoLsoaJtbMGjfd/jfxo8jMCKqYYEnjZuFvqV5rehqar0538EmssjdDeiEWnKyBSTw7quoA==
+
+gl-vec3@^1.1.3:
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/gl-vec3/-/gl-vec3-1.1.3.tgz#a47c62f918774a06cbed1b65bcd0288ecbb03826"
+  integrity sha512-jduKUqT0SGH02l8Yl+mV1yVsDfYgQAJyXGxkJQGyxPLHRiW25DwVIRPt6uvhrEMHftJfqhqKthRcyZqNEl9Xdw==
+
 glob-parent@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/glob-parent/-/glob-parent-3.1.0.tgz#9e6af6299d8d3bd2bd40430832bd113df906c5ae"
@@ -8000,6 +8015,27 @@ modern-normalize@^0.7.0:
   resolved "https://registry.yarnpkg.com/modern-normalize/-/modern-normalize-0.7.0.tgz#023a110fb00eafc65c7e01681a6e00db64c152aa"
   integrity sha512-EiotlP2YuHgasvDZcgM5OAHAo9TV5d+GG6MNPO0wSaBRqVEc0ROPq7MuRRO7lfTGtAB6B72hTCfwA8mS6FeNeg==
 
+mouse-change@^1.3.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/mouse-change/-/mouse-change-1.4.0.tgz#c2b77e5bfa34a43ce1445c8157a4e4dc9895c14f"
+  integrity sha1-wrd+W/o0pDzhRFyBV6Tk3JiVwU8=
+  dependencies:
+    mouse-event "^1.0.0"
+
+mouse-event@^1.0.0:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/mouse-event/-/mouse-event-1.0.5.tgz#b3789edb7109997d5a932d1d01daa1543a501732"
+  integrity sha1-s3ie23EJmX1aky0dAdqhVDpQFzI=
+
+mouse-wheel@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/mouse-wheel/-/mouse-wheel-1.2.0.tgz#6d2903b1ea8fb48e61f1b53b9036773f042cdb5c"
+  integrity sha1-bSkDseqPtI5h8bU7kDZ3PwQs21w=
+  dependencies:
+    right-now "^1.0.0"
+    signum "^1.0.0"
+    to-px "^1.0.1"
+
 move-concurrently@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/move-concurrently/-/move-concurrently-1.0.1.tgz#be2c005fda32e0b29af1f05d7c4b33214c701f92"
@@ -8632,6 +8668,11 @@ parse-ms@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/parse-ms/-/parse-ms-2.1.0.tgz#348565a753d4391fa524029956b172cb7753097d"
   integrity sha512-kHt7kzLoS9VBZfUsiKjv43mr91ea+U05EyKkEtqp7vNbHxmaVuEqN7XxeEVnGrMtYOAxGrDElSi96K7EgO1zCA==
+
+parse-unit@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/parse-unit/-/parse-unit-1.0.1.tgz#7e1bb6d5bef3874c28e392526a2541170291eecf"
+  integrity sha1-fhu21b7zh0wo45JSaiVBFwKR7s8=
 
 parse5@5.1.0:
   version "5.1.0"
@@ -10064,6 +10105,20 @@ regjsparser@^0.6.4:
   dependencies:
     jsesc "~0.5.0"
 
+regl-camera@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/regl-camera/-/regl-camera-2.1.1.tgz#6979a6d1c9b80c5d918b809fa05766483ccce546"
+  integrity sha1-aXmm0cm4DF2Ri4CfoFdmSDzM5UY=
+  dependencies:
+    gl-mat4 "^1.1.4"
+    mouse-change "^1.3.0"
+    mouse-wheel "^1.2.0"
+
+regl@^1.6.1:
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/regl/-/regl-1.6.1.tgz#6930172cda9b8fb65724abc0d4930d79333f5460"
+  integrity sha512-7Z9rmpEqmLNwC9kCYCyfyu47eWZaQWeNpwZfwz99QueXN8B/Ow40DB0N+OeUeM/yu9pZAB01+JgJ+XghGveVoA==
+
 relateurl@^0.2.7:
   version "0.2.7"
   resolved "https://registry.yarnpkg.com/relateurl/-/relateurl-0.2.7.tgz#54dbf377e51440aca90a4cd274600d3ff2d888a9"
@@ -10265,6 +10320,11 @@ rgba-regex@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/rgba-regex/-/rgba-regex-1.0.0.tgz#43374e2e2ca0968b0ef1523460b7d730ff22eeb3"
   integrity sha1-QzdOLiyglosO8VI0YLfXMP8i7rM=
+
+right-now@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/right-now/-/right-now-1.0.0.tgz#6e89609deebd7dcdaf8daecc9aea39cf585a0918"
+  integrity sha1-bolgne69fc2vja7Mmuo5z1haCRg=
 
 rimraf@2.6.3:
   version "2.6.3"
@@ -10611,6 +10671,11 @@ signal-exit@^3.0.0, signal-exit@^3.0.2:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.3.tgz#a1410c2edd8f077b08b4e253c8eacfcaf057461c"
   integrity sha512-VUJ49FC8U1OxwZLxIbTTrDvLnf/6TDgxZcK8wxR8zs13xpx7xbG60ndBlhNrFi2EMuFRoeDoJO7wthSLq42EjA==
+
+signum@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/signum/-/signum-1.0.0.tgz#74a7d2bf2a20b40eba16a92b152124f1d559fa77"
+  integrity sha1-dKfSvyogtA66FqkrFSEk8dVZ+nc=
 
 simple-swizzle@^0.2.2:
   version "0.2.2"
@@ -11293,6 +11358,13 @@ to-object-path@^0.3.0:
   integrity sha1-KXWIt7Dn4KwI4E5nL4XB9JmeF68=
   dependencies:
     kind-of "^3.0.2"
+
+to-px@^1.0.1:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/to-px/-/to-px-1.1.0.tgz#b6b269ed5db0cc9aefc15272a4c8bcb2ca1e99ca"
+  integrity sha512-bfg3GLYrGoEzrGoE05TAL/Uw+H/qrf2ptr9V3W7U0lkjjyYnIfgxmVLUfhQ1hZpIQwin81uxhDjvUkDYsC0xWw==
+  dependencies:
+    parse-unit "^1.0.1"
 
 to-readable-stream@^1.0.0:
   version "1.0.0"
