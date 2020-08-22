@@ -6,6 +6,7 @@ uniform mat4 mvp;
 uniform mat4 model;
 uniform mat3 normal;
 uniform float time;
+uniform float noisePerc;
 
 varying float noiseAmt;
 varying float noiseAmt2;
@@ -13,16 +14,17 @@ varying vec3 fragNrm;
 varying vec3 fragWorldPos;
 
 float noise(vec3 x){
+  if(noisePerc==0.)return 1.;
   float n1=snoise(vec4(x,time))*.5+.5;
   float n2=snoise(vec4(x*4.,time))*.5+.5;
   float n=mix(n1,n1*n2*n2,.25);
   
-  return n;
+  return n*noisePerc;
 }
 
 float displacement(float n){
-  float m=mix(.65,.95,(sin(time)*.5+.5));
-  return mix(m,1.,n);
+  float m=mix(.65,1.,(sin(time)*.5+.5));
+  return mix(1.,m,(1.-n)*noisePerc);
 }
 
 vec3 calc(float phi,float theta){

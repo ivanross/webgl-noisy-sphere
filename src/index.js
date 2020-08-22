@@ -1,13 +1,5 @@
-import vec3 from 'gl-vec3'
-import mat3 from 'gl-mat3'
-import mat4 from 'gl-mat4'
-import mouseChange from 'mouse-change'
-import sphere from './icosphere.json'
-import vert from './noisy.vert'
-import frag from './noisy.frag'
-
-const mouse = { x: 0, y: 0 }
-mouseChange((btn, x, y) => ((mouse.x = x), (mouse.y = y)))
+import gsap from 'gsap'
+import { NoisySphere } from './NoisySphere'
 
 const container = document.createElement('div')
 container.style.width = '100vw'
@@ -16,87 +8,24 @@ document.getElementById('root').appendChild(container)
 document.body.style.padding = 0
 document.body.style.margin = 0
 
-const regl = require('regl')(container)
-const camera = require('regl-camera')(regl, {
-  damping: 0,
-  noScroll: true,
-  distance: 5,
-})
+const noisy = new NoisySphere(container)
+const duration = 0.33
+const stages = [
+  () => gsap.to(noisy.interpolatedValues, { noisePerc: 1, duration }),
+  () => gsap.to(noisy.interpolatedValues, { colorPerc: 1, duration }),
+]
 
-const getLightColor = (light) => light.color.map((ch) => ch * light.intensity)
+stages.index = 0
+stages.wait = false
 
-const lights = regl({
-  uniforms: {
-    // AMBIENT LIGHT
-    'ambientLight.col': (c, { ambientLight }) => getLightColor(ambientLight),
-
-    // DIRECTIONAL LIGHT
-    'dirLight.col': (c, { dirLight }) => getLightColor(dirLight),
-    'dirLight.dir': (c, { dirLight }) =>
-      vec3.normalize(
-        [],
-        dirLight.direction.map((ch) => ch * -1)
-      ),
-
-    // POINT LIGHT
-    'pointLight.radius': regl.prop('pointLight.radius'),
-    'pointLight.col': (c, { pointLight }) => getLightColor(pointLight),
-    'pointLight.pos': (context) => {
-      const pos = vec3.fromValues(
-        (mouse.x / context.viewportWidth - 0.5) * 20,
-        -(mouse.y / context.viewportHeight - 0.5) * 20,
-        -2
-      )
-
-      vec3.transformMat4(pos, pos, mat4.invert([], context.view))
-      return pos
-    },
-  },
-})
-
-const drawSphere = regl({
-  vert,
-  frag,
-  attributes: {
-    position: sphere.positions,
-  },
-  elements: sphere.cells,
-  uniforms: {
-    mvp: ({ projection, view }) => mat4.multiply([], projection, view),
-    model: mat4.identity([]),
-    normal: () => mat3.fromMat4([], mat4.transpose([], mat4.invert([], mat4.identity([])))),
-    time: regl.context('time'),
-  },
-})
-
-const lightState = {
-  ambientLight: {
-    color: [1, 1, 1],
-    intensity: 0.2,
-  },
-  dirLight: {
-    color: [1, 1, 1],
-    intensity: 0.3,
-    direction: [0.3, -1, -0.1],
-  },
-  pointLight: {
-    color: [1, 1, 1],
-    intensity: 1,
-    radius: 6,
-  },
+const changeStage = () => {
+  if (stages.wait) return
+  if (stages.index >= stages.length) return
+  stages[stages.index++]()
+  stages.wait = true
+  setTimeout(() => (stages.wait = false), 1000)
 }
 
-regl.frame(() => {
-  try {
-    regl.clear({ color: [0, 0, 0, 1] })
-    camera(() => {
-      lights(lightState, () => {
-        drawSphere()
-      })
-    })
-  } catch (e) {
-    console.error(e)
-    console.log('🧨 DESTROY regl')
-    regl.destroy()
-  }
-})
+window.addEventListener('click', changeStage)
+
+console.log()

@@ -23,6 +23,7 @@ uniform AmbientLight ambientLight;
 uniform DirectionalLight dirLight;
 uniform PointLight pointLight;
 uniform vec3 eye;
+uniform float colorPerc;
 
 float bell(float _min,float _max,float value){
   float mid=(_min+_max)/2.;
@@ -35,7 +36,7 @@ vec3 palette(float n){
   vec3(.1059,.0627,.7255)*bell(.4,.7,n)+
   vec3(.0627,.7255,.4471)*bell(.5,.8,n)+
   vec3(0.,1.,1.)*smoothstep(.5,1.,n);
-  return col;
+  return mix(vec3(.6),col,colorPerc);
 }
 
 float diffuse(in vec3 lightDir,in vec3 normal){
