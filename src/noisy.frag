@@ -4,17 +4,24 @@ varying float noiseAmt2;
 varying vec3 fragNrm;
 varying vec3 fragWorldPos;
 
-uniform struct PointLight{
+struct AmbientLight{
+  vec3 col;
+};
+
+struct PointLight{
   vec3 pos;
   vec3 col;
   float radius;
-}pointLight;
+};
 
-uniform struct DirectionalLight{
+struct DirectionalLight{
   vec3 dir;
   vec3 col;
-}dirLight;
+};
 
+uniform AmbientLight ambientLight;
+uniform DirectionalLight dirLight;
+uniform PointLight pointLight;
 uniform vec3 eye;
 
 float bell(float _min,float _max,float value){
@@ -71,7 +78,7 @@ vec3 getPointLightColor(
   float diffuseAmt=diffuse(lightDir,normal)*falloff;
   vec3 diffuseCol=color*light.col*diffuseAmt;
   
-  float specAmt=specular(lightDir,normal,viewDir,128.)*falloff;
+  float specAmt=specular(lightDir,normal,viewDir,64.)*falloff;
   vec3 specCol=light.col*specAmt;
   
   return specCol+diffuseCol;
@@ -85,6 +92,6 @@ void main(){
   vec3 pointLightColor=getPointLightColor(pointLight,viewDir,nrm,col);
   vec3 dirLightColor=getDirectionalLightColor(dirLight,viewDir,nrm,col);
   
-  vec3 ambientCol=col.rgb*.0;
+  vec3 ambientCol=col*ambientLight.col;
   gl_FragColor=vec4(pointLightColor+dirLightColor+ambientCol,1);
 }

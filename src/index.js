@@ -21,8 +21,9 @@ const camera = require('regl-camera')(regl, {
   damping: 0,
   noScroll: true,
   distance: 5,
-  // theta: Math.PI / 2,
 })
+
+const getLightColor = (light) => light.color.map((ch) => ch * light.intensity)
 
 const drawSphere = regl({
   vert,
@@ -37,36 +38,53 @@ const drawSphere = regl({
     normal: () => mat3.fromMat4([], mat4.transpose([], mat4.invert([], mat4.identity([])))),
     time: regl.context('time'),
 
+    // AMBIENT LIGHT
+    'ambientLight.col': (c, { ambientLight }) => getLightColor(ambientLight),
+
+    // DIRECTIONAL LIGHT
+    'dirLight.col': (c, { dirLight }) => getLightColor(dirLight),
+    'dirLight.dir': (c, { dirLight }) =>
+      vec3.normalize(
+        [],
+        dirLight.direction.map((ch) => ch * -1)
+      ),
+
     // POINT LIGHT
-    'pointLight.radius': 6,
-    'pointLight.col': vec3.fromValues(1, 0, 1),
+    'pointLight.radius': regl.prop('pointLight.radius'),
+    'pointLight.col': (c, { pointLight }) => getLightColor(pointLight),
     'pointLight.pos': (context) => {
       const pos = vec3.fromValues(
-        (mouse.x / context.viewportWidth - 0.5) * 4,
-        -(mouse.y / context.viewportHeight - 0.5) * 4,
+        (mouse.x / context.viewportWidth - 0.5) * 20,
+        -(mouse.y / context.viewportHeight - 0.5) * 20,
         -2
       )
 
       vec3.transformMat4(pos, pos, mat4.invert([], context.view))
       return pos
     },
-
-    // DIRECTIONAL LIGHT
-    'dirLight.col': vec3.fromValues(0.5, 1, 1),
-    'dirLight.dir': (c, { lightDir }) =>
-      vec3.normalize(
-        [],
-        lightDir.map((c) => c * -1)
-      ),
   },
 })
 
 regl.frame(() => {
   try {
-    camera(() => {
+    camera((state) => {
       regl.clear({ color: [0, 0, 0, 1] })
       drawSphere({
-        lightDir: [0, -1, 0],
+        ambientLight: {
+          color: [1, 1, 1],
+          intensity: 0.4,
+        },
+        dirLight: {
+          color: [1, 1, 1],
+          intensity: 0.5,
+          direction: [0, -1, 0],
+        },
+
+        pointLight: {
+          color: [1, 1, 1],
+          intensity: 1,
+          radius: 6,
+        },
       })
     })
   } catch (e) {
