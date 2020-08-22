@@ -25,19 +25,8 @@ const camera = require('regl-camera')(regl, {
 
 const getLightColor = (light) => light.color.map((ch) => ch * light.intensity)
 
-const drawSphere = regl({
-  vert,
-  frag,
-  attributes: {
-    position: sphere.positions,
-  },
-  elements: sphere.cells,
+const lights = regl({
   uniforms: {
-    mvp: ({ projection, view }) => mat4.multiply([], projection, view),
-    model: mat4.identity([]),
-    normal: () => mat3.fromMat4([], mat4.transpose([], mat4.invert([], mat4.identity([])))),
-    time: regl.context('time'),
-
     // AMBIENT LIGHT
     'ambientLight.col': (c, { ambientLight }) => getLightColor(ambientLight),
 
@@ -65,26 +54,44 @@ const drawSphere = regl({
   },
 })
 
+const drawSphere = regl({
+  vert,
+  frag,
+  attributes: {
+    position: sphere.positions,
+  },
+  elements: sphere.cells,
+  uniforms: {
+    mvp: ({ projection, view }) => mat4.multiply([], projection, view),
+    model: mat4.identity([]),
+    normal: () => mat3.fromMat4([], mat4.transpose([], mat4.invert([], mat4.identity([])))),
+    time: regl.context('time'),
+  },
+})
+
+const lightState = {
+  ambientLight: {
+    color: [1, 1, 1],
+    intensity: 0.2,
+  },
+  dirLight: {
+    color: [1, 1, 1],
+    intensity: 0.3,
+    direction: [0.3, -1, -0.1],
+  },
+  pointLight: {
+    color: [1, 1, 1],
+    intensity: 1,
+    radius: 6,
+  },
+}
+
 regl.frame(() => {
   try {
-    camera((state) => {
-      regl.clear({ color: [0, 0, 0, 1] })
-      drawSphere({
-        ambientLight: {
-          color: [1, 1, 1],
-          intensity: 0.4,
-        },
-        dirLight: {
-          color: [1, 1, 1],
-          intensity: 0.6,
-          direction: [0, -1, 0],
-        },
-
-        pointLight: {
-          color: [1, 1, 1],
-          intensity: 1,
-          radius: 6,
-        },
+    regl.clear({ color: [0, 0, 0, 1] })
+    camera(() => {
+      lights(lightState, () => {
+        drawSphere()
       })
     })
   } catch (e) {
