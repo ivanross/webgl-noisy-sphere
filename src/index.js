@@ -76,7 +76,7 @@ regl.frame(() => {
         },
         dirLight: {
           color: [1, 1, 1],
-          intensity: 0.5,
+          intensity: 0.6,
           direction: [0, -1, 0],
         },
 
