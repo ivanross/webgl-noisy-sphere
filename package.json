@@ -31,6 +31,8 @@
   },
   "dependencies": {
     "@accurat/tachyons-lite": "^1.0.4",
+    "controls-gui": "^2.0.0",
+    "controls-state": "^2.0.0",
     "gl-mat3": "^2.0.0",
     "gl-mat4": "^1.2.0",
     "gl-vec3": "^1.1.3",
