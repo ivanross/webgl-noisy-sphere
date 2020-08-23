@@ -7,6 +7,8 @@ uniform mat4 model;
 uniform mat3 normal;
 uniform float time;
 uniform float noisePerc;
+uniform float minRadius;
+uniform float maxRadius;
 
 varying float noiseAmt;
 varying float noiseAmt2;
@@ -23,7 +25,7 @@ float noise(vec3 x){
 }
 
 float displacement(float n){
-  float m=mix(.65,1.,(sin(time)*.5+.5));
+  float m=mix(minRadius,maxRadius,(sin(time)*.5+.5));
   return mix(1.,m,(1.-n)*noisePerc);
 }
 

@@ -9,7 +9,8 @@ import vert from './noisy.vert'
 import frag from './noisy.frag'
 import { debugState } from './debug-state'
 import createAxis from './createAxis'
-const getLightColor = (light) => light.color.map((ch) => ch * light.intensity)
+const getLightColor = (light, alpha = false) =>
+  alpha ? [...light.color, light.intensity] : light.color.map((ch) => ch * light.intensity)
 
 const scaledCoord = (pos, length, res) => ((pos * res) / length - 0.5) * 2
 
@@ -19,7 +20,7 @@ export class NoisySphere {
     this.camera = createCamera(this.regl, {
       damping: 0,
       noScroll: true,
-      distance: 5,
+      distance: 6,
       fvoy: Math.PI / 2,
     })
 
@@ -37,7 +38,9 @@ export class NoisySphere {
           mat4.rotate(rot, rot, (x * Math.PI) / 2, up) // ROTATE X
           mat4.rotate(rot, rot, (y * Math.PI) / 2, right) // ROTATE Y
 
-          const p = vec3.normalize([], context.eye).map((c) => c * 2)
+          const p = vec3
+            .normalize([], context.eye)
+            .map((c) => c * this.lightState.pointLight.distance)
           vec3.transformMat4(p, p, rot)
 
           return p
@@ -74,6 +77,8 @@ export class NoisySphere {
         time: this.regl.context('time'),
         colorPerc: () => this.interpolatedValues.colorPerc,
         noisePerc: () => this.interpolatedValues.noisePerc,
+        minRadius: () => this.interpolatedValues.minRadius,
+        maxRadius: () => this.interpolatedValues.maxRadius,
       },
     })
 
@@ -87,9 +92,9 @@ export class NoisySphere {
       `,
       frag: `
       precision mediump float;
-      uniform vec3 color;
+      uniform vec4 color;
       void main() {
-        gl_FragColor=vec4(color,1.);
+        gl_FragColor=color;
       }
       `,
       attributes: {
@@ -111,6 +116,7 @@ export class NoisySphere {
         mvp: ({ projection, view, model }) =>
           mat4.multiply([], projection, mat4.multiply([], view, model)),
       },
+      blend: { enable: true, func: { src: 'src alpha', dst: 'one minus src alpha' } },
     })
 
     this.drawAxes = createAxis(this.regl)
@@ -124,7 +130,7 @@ export class NoisySphere {
             this.drawSphere()
             this.drawPoint({
               position: state.pointLightPos,
-              color: [1, 1, 1],
+              color: getLightColor(this.lightState.pointLight, true),
             })
 
             debugState.axis && this.drawAxes()
@@ -141,6 +147,8 @@ export class NoisySphere {
   interpolatedValues = {
     colorPerc: 0,
     noisePerc: 0,
+    minRadius: 0.65,
+    maxRadius: 0.65,
   }
 
   mouse = { x: 0, y: 0 }
@@ -148,17 +156,18 @@ export class NoisySphere {
   lightState = {
     ambientLight: {
       color: [1, 1, 1],
-      intensity: 0.2,
+      intensity: 0, // 0.2,
     },
     dirLight: {
       color: [1, 1, 1],
-      intensity: 0.3,
+      intensity: 0, //0.3,
       direction: [0.3, -1, -0.1],
     },
     pointLight: {
       color: [1, 1, 1],
-      intensity: 1,
-      radius: 6,
+      intensity: 0,
+      radius: 3,
+      distance: 4,
     },
   }
 }
