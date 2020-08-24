@@ -9,6 +9,8 @@ import vert from './noisy.vert'
 import frag from './noisy.frag'
 import { debugState } from './debug-state'
 import createAxis from './createAxis'
+import { $ } from './utils'
+
 const getLightColor = (light, alpha = false) =>
   alpha ? [...light.color, light.intensity] : light.color.map((ch) => ch * light.intensity)
 
@@ -16,11 +18,13 @@ const scaledCoord = (pos, length, res) => ((pos * res) / length - 0.5) * 2
 
 export class NoisySphere {
   constructor(container) {
-    this.regl = createREGL(container)
+    this.container = $(container)
+    this.regl = createREGL(this.container)
     this.camera = createCamera(this.regl, {
       damping: 0,
-      noScroll: true,
-      distance: 6,
+      zoomSpeed: 0,
+      rotationSpeed: 0,
+      noScroll: false,
       fvoy: Math.PI / 2,
     })
 
@@ -120,20 +124,19 @@ export class NoisySphere {
     })
 
     this.drawAxes = createAxis(this.regl)
-    mouseChange((btn, x, y) => ((this.mouse.x = x), (this.mouse.y = y)))
+    mouseChange(this.container, (btn, x, y) => ((this.mouse.x = x), (this.mouse.y = y)))
 
     this.regl.frame(() => {
       try {
         this.regl.clear({ color: [0, 0, 0, 1] })
-        this.camera({ center: [0, 0, 0] }, () => {
+        this.camera(this.cameraState, () => {
           this.lights(this.lightState, (state) => {
             this.drawSphere()
+            debugState.axis && this.drawAxes()
             this.drawPoint({
               position: state.pointLightPos,
               color: getLightColor(this.lightState.pointLight, true),
             })
-
-            debugState.axis && this.drawAxes()
           })
         })
       } catch (e) {
@@ -142,6 +145,13 @@ export class NoisySphere {
         this.regl.destroy()
       }
     })
+  }
+
+  cameraState = {
+    phi: 0,
+    theta: Math.PI / 2,
+    distance: 2,
+    center: [0, 0, 0],
   }
 
   interpolatedValues = {

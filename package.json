@@ -43,6 +43,7 @@
     "mouse-change": "^1.4.0",
     "regl": "^1.6.1",
     "regl-camera": "^2.1.1",
+    "swiper": "^6.1.2",
     "tachyons-extra": "^1.1.3"
   }
 }
