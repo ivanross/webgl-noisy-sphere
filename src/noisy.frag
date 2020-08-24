@@ -24,6 +24,8 @@ uniform DirectionalLight dirLight;
 uniform PointLight pointLight;
 uniform vec3 eye;
 uniform float colorPerc;
+uniform float envPerc;
+uniform samplerCube envMap;
 
 float bell(float _min,float _max,float value){
   float mid=(_min+_max)/2.;
@@ -89,6 +91,9 @@ void main(){
   vec3 nrm=normalize(fragNrm);
   vec3 viewDir=normalize(eye-fragWorldPos);
   vec3 col=palette(noiseAmt);
+  vec3 envSample=textureCube(envMap,reflect(-viewDir,nrm)).rgb;
+  float mixCoeff=smoothstep(.2,.6,noiseAmt2);
+  col=mix(col,envSample,mixCoeff*envPerc);
   
   vec3 pointLightColor=getPointLightColor(pointLight,viewDir,nrm,col);
   vec3 dirLightColor=getDirectionalLightColor(dirLight,viewDir,nrm,col);

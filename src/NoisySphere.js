@@ -9,6 +9,7 @@ import vert from './noisy.vert'
 import frag from './noisy.frag'
 import { debugState } from './debug-state'
 import createAxis from './createAxis'
+import createSkybox from './createSkybox'
 import { $ } from './utils'
 
 const getLightColor = (light, alpha = false) =>
@@ -17,7 +18,7 @@ const getLightColor = (light, alpha = false) =>
 const scaledCoord = (pos, length, res) => ((pos * res) / length - 0.5) * 2
 
 export class NoisySphere {
-  constructor(container) {
+  constructor(container, images) {
     this.container = $(container)
     this.regl = createREGL(this.container)
     this.camera = createCamera(this.regl, {
@@ -27,6 +28,15 @@ export class NoisySphere {
       noScroll: false,
       fvoy: Math.PI / 2,
     })
+
+    this.envMap = this.regl.cube(
+      images.posX,
+      images.negX,
+      images.posY,
+      images.negY,
+      images.posZ,
+      images.negZ
+    )
 
     this.lights = this.regl({
       context: {
@@ -64,6 +74,7 @@ export class NoisySphere {
         'pointLight.radius': this.regl.prop('pointLight.radius'),
         'pointLight.col': (c, { pointLight }) => getLightColor(pointLight),
         'pointLight.pos': this.regl.context('pointLightPos'),
+        envMap: this.envMap,
       },
     })
 
@@ -83,6 +94,7 @@ export class NoisySphere {
         noisePerc: () => this.interpolatedValues.noisePerc,
         minRadius: () => this.interpolatedValues.minRadius,
         maxRadius: () => this.interpolatedValues.maxRadius,
+        envPerc: this.regl.prop('envPerc'),
       },
     })
 
@@ -124,6 +136,7 @@ export class NoisySphere {
     })
 
     this.drawAxes = createAxis(this.regl)
+    this.drawSkybox = createSkybox(this.regl)
     mouseChange(this.container, (btn, x, y) => ((this.mouse.x = x), (this.mouse.y = y)))
 
     this.regl.frame(() => {
@@ -131,8 +144,13 @@ export class NoisySphere {
         this.regl.clear({ color: [0, 0, 0, 1] })
         this.camera(this.cameraState, () => {
           this.lights(this.lightState, (state) => {
-            this.drawSphere()
+            this.drawSphere({ envPerc: this.interpolatedValues.envPerc })
+
+            this.interpolatedValues.envPerc &&
+              this.drawSkybox({ perc: this.interpolatedValues.envPerc })
+
             debugState.axis && this.drawAxes()
+
             this.drawPoint({
               position: state.pointLightPos,
               color: getLightColor(this.lightState.pointLight, true),
@@ -157,6 +175,7 @@ export class NoisySphere {
   interpolatedValues = {
     colorPerc: 0,
     noisePerc: 0,
+    envPerc: 0,
     minRadius: 0.65,
     maxRadius: 0.65,
   }

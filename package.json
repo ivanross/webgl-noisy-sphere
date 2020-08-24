@@ -41,6 +41,8 @@
     "lodash-es": "^4.17.15",
     "modern-normalize": "^0.7.0",
     "mouse-change": "^1.4.0",
+    "p-map": "^4.0.0",
+    "primitive-cube": "^2.0.1",
     "regl": "^1.6.1",
     "regl-camera": "^2.1.1",
     "swiper": "^6.1.2",
