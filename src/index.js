@@ -10,7 +10,7 @@ import { $ } from './utils'
 
 const noisy = new NoisySphere('.webgl-container')
 
-const opts = { duration: 0.5, ease: 'power2.inOut' }
+const opts = { duration: 1, ease: 'power2.inOut' }
 const vars = (o) => ({ ...opts, ...o })
 
 const timeline = gsap
