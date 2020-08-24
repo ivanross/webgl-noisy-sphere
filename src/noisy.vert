@@ -49,12 +49,12 @@ void main(){
   float d=displacement(n);
   
   vec3 P=position*d;
-  vec3 T=normalize(calc(phi+e,theta)-P);
-  vec3 B=normalize(calc(phi,theta-e)-P);
+  vec3 T=calc(phi+e,theta)-P;
+  vec3 B=calc(phi,theta-e)-P;
   
   gl_Position=mvp*vec4(P,1.);
   noiseAmt=n;
   noiseAmt2=noise(position*1.5);
-  fragNrm=normalize(normal*(cross(T,B)));
+  fragNrm=normal*cross(T,B);
   fragWorldPos=(model*vec4(P,1.)).xyz;
 }
