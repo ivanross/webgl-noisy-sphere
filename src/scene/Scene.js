@@ -4,21 +4,20 @@ import vec3 from 'gl-vec3'
 import mat3 from 'gl-mat3'
 import mat4 from 'gl-mat4'
 import mouseChange from 'mouse-change'
-import sphere from './icosphere.json'
-import vert from './noisy.vert'
-import frag from './noisy.frag'
-import { debugState } from './debug-state'
+import vert from '../shaders/noisy.vert'
+import frag from '../shaders/noisy.frag'
+import { debugState } from '../debug-state'
 import createAxis from './createAxis'
 import createSkybox from './createSkybox'
-import { $ } from './utils'
+import { $ } from '../lib/utils'
 
 const getLightColor = (light, alpha = false) =>
   alpha ? [...light.color, light.intensity] : light.color.map((ch) => ch * light.intensity)
 
 const scaledCoord = (pos, length, res) => ((pos * res) / length - 0.5) * 2
 
-export class NoisySphere {
-  constructor(container, images) {
+export class Scene {
+  constructor(container, assets) {
     this.container = $(container)
     this.regl = createREGL(this.container)
     this.camera = createCamera(this.regl, {
@@ -29,14 +28,13 @@ export class NoisySphere {
       fvoy: Math.PI / 2,
     })
 
-    this.envMap = this.regl.cube(
-      images.posX,
-      images.negX,
-      images.posY,
-      images.negY,
-      images.posZ,
-      images.negZ
-    )
+    const imgs = [assets.posX, assets.negX, assets.posY, assets.negY, assets.posZ, assets.negZ]
+
+    this.envMap = this.regl.cube({
+      faces: imgs,
+      min: 'linear',
+      mag: 'linear',
+    })
 
     this.lights = this.regl({
       context: {
@@ -82,9 +80,9 @@ export class NoisySphere {
       vert,
       frag,
       attributes: {
-        position: sphere.positions,
+        position: assets.sphere.positions,
       },
-      elements: sphere.cells,
+      elements: assets.sphere.cells,
       uniforms: {
         mvp: ({ projection, view }) => mat4.multiply([], projection, view),
         model: mat4.identity([]),
@@ -114,9 +112,9 @@ export class NoisySphere {
       }
       `,
       attributes: {
-        position: sphere.positions,
+        position: assets.sphere.positions,
       },
-      elements: sphere.cells,
+      elements: assets.sphere.cells,
       context: {
         model: (c, { position }) => {
           const model = mat4.identity([])
@@ -137,24 +135,33 @@ export class NoisySphere {
 
     this.drawAxes = createAxis(this.regl)
     this.drawSkybox = createSkybox(this.regl)
-    mouseChange(this.container, (btn, x, y) => ((this.mouse.x = x), (this.mouse.y = y)))
+
+    mouseChange(this.container, (btn, x, y) => {
+      this.mouse.x = x
+      this.mouse.y = y
+    })
 
     this.regl.frame(() => {
       try {
         this.regl.clear({ color: [0, 0, 0, 1] })
         this.camera(this.cameraState, () => {
-          this.lights(this.lightState, (state) => {
+          this.lights(this.lightState, ({ pointLightPos }) => {
             this.drawSphere({ envPerc: this.interpolatedValues.envPerc })
 
-            this.interpolatedValues.envPerc &&
+            if (this.interpolatedValues.envPerc > 0) {
               this.drawSkybox({ perc: this.interpolatedValues.envPerc })
+            }
 
-            debugState.axis && this.drawAxes()
+            if (debugState.axis) {
+              this.drawAxes()
+            }
 
-            this.drawPoint({
-              position: state.pointLightPos,
-              color: getLightColor(this.lightState.pointLight, true),
-            })
+            if (this.lightState.pointLight.intensity > 0) {
+              this.drawPoint({
+                position: pointLightPos,
+                color: getLightColor(this.lightState.pointLight, true),
+              })
+            }
           })
         })
       } catch (e) {
@@ -168,8 +175,8 @@ export class NoisySphere {
   cameraState = {
     phi: 0,
     theta: Math.PI / 2,
-    distance: 2,
-    center: [0, 0, 0],
+    distance: 0.4,
+    center: [0, 1.5, 0],
   }
 
   interpolatedValues = {
@@ -185,15 +192,15 @@ export class NoisySphere {
   lightState = {
     ambientLight: {
       color: [1, 1, 1],
-      intensity: 0, // 0.2,
+      intensity: 0,
     },
     dirLight: {
       color: [1, 1, 1],
-      intensity: 0, //0.3,
+      intensity: 0,
       direction: [0.3, -1, -0.1],
     },
     pointLight: {
-      color: [1, 1, 1],
+      color: [0, 1, 1],
       intensity: 0,
       radius: 3,
       distance: 4,

@@ -10,7 +10,7 @@ export default function (regl) {
     varying vec3 fromCam;
     void main() {
       fromCam=position;
-      gl_Position=normalize(mvp*vec4(position*4.,1.)).xyww;
+      gl_Position=(mvp*vec4(position,1.)).xyww;
     }
     `,
     frag: `

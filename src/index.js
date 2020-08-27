@@ -1,59 +1,68 @@
-import gsap from 'gsap'
 import Swiper, { Mousewheel } from 'swiper'
 import 'swiper/swiper-bundle.css'
 import '@accurat/tachyons-lite'
 import 'tachyons-extra'
 import './reset.css'
 import './style.css'
-import { NoisySphere } from './NoisySphere'
-import { $, fetchImges } from './utils'
+import { Scene } from './scene/Scene'
+import { $ } from './lib/utils'
+import { buildTimeline } from './lib/buildTimeline'
+import { fetchAssets } from './lib/fetchAssets'
 ;(async function () {
-  const images = await fetchImges({
+  const assets = await fetchAssets({
     posX: 'positive_x.png',
     posY: 'positive_y.png',
     posZ: 'positive_z.png',
     negX: 'negative_x.png',
     negY: 'negative_y.png',
     negZ: 'negative_z.png',
+    sphere: 'icosphere.json',
   })
 
-  const noisy = new NoisySphere('.webgl-container', images)
+  const noisy = new Scene('.webgl-container', assets)
 
   const opts = { duration: 1, ease: 'power2.inOut' }
-  const vars = (o) => ({ ...opts, ...o })
+  const timeline = buildTimeline(
+    [
+      [
+        [noisy.lightState.dirLight, { intensity: 0.7 }],
+        [noisy.lightState.ambientLight, { intensity: 0.1 }],
+        [noisy.cameraState.center, { ...[0, 1, 0], ease: 'power2.linear' }],
+        [noisy.cameraState, { distance: 1, ease: 'power2.linear' }],
+      ],
+      [
+        [noisy.cameraState, { distance: 2 }],
+        [noisy.cameraState.center, { ...[-1, 0.25, 0] }],
+        [noisy.lightState.pointLight, { distance: 3, intensity: 1 }],
+        [noisy.cameraState, { phi: Math.PI / 4 }],
+      ],
 
-  const timeline = gsap
-    .timeline()
-    .addLabel('0')
-    .to(noisy.lightState.ambientLight, vars({ intensity: 1 }), '0')
-    .addLabel('1')
-    .to(noisy.lightState.dirLight, vars({ intensity: 0.7 }), '1')
-    .to(noisy.lightState.ambientLight, vars({ intensity: 0.1 }), '1')
-    .to(noisy.cameraState.center, vars({ ...[0, 1, 0] }), '1')
-    .to(noisy.cameraState, vars({ distance: 1 }), '1')
-    .addLabel('2')
-    .to(noisy.cameraState, vars({ distance: 2 }), '2')
-    .to(noisy.cameraState.center, vars({ ...[-1, 0.25, 0] }), '2')
-    .to(noisy.lightState.pointLight, vars({ distance: 3, intensity: 1 }), '2')
-    .to(noisy.cameraState, vars({ phi: Math.PI / 4 }), '2')
-    .addLabel('3')
-    .to(noisy.cameraState.center, vars({ ...[0, 0, -1] }), '3')
-    .to(noisy.cameraState, vars({ distance: 1.8, phi: 0, theta: -Math.PI / 6 }), '3')
-    .to(noisy.interpolatedValues, vars({ noisePerc: 1 }), '3')
-    .addLabel('4')
-    .to(noisy.interpolatedValues, vars({ colorPerc: 1 }), '4')
-    .to(noisy.lightState.pointLight, vars({ distance: 2, radius: 5 }), '4')
-    .to(noisy.lightState.ambientLight, vars({ intensity: 0.3 }), '4')
-    .to(noisy.lightState.dirLight, vars({ intensity: 0.9 }), '4')
-    .to(noisy.cameraState.center, vars({ ...[0, 0, 0] }), '4')
-    .to(noisy.cameraState, vars({ phi: Math.PI / 6 }), '4')
-    .addLabel('5')
-    .to(noisy.cameraState, vars({ theta: 0, distance: 1.3 }), '5')
-    .to(noisy.interpolatedValues, vars({ maxRadius: 0.95, envPerc: 1 }), '5')
-    .addLabel('6')
-    .pause()
-
-  Swiper.use([Mousewheel])
+      [
+        [noisy.cameraState.center, { ...[0, 0, -1] }],
+        [noisy.cameraState, { distance: 1.8, phi: 0, theta: -Math.PI / 6 }],
+        [noisy.interpolatedValues, { noisePerc: 1 }],
+        [noisy.lightState.pointLight.color, { ...[1, 0, 1] }],
+        [noisy.lightState.pointLight, { radius: 4 }],
+      ],
+      [
+        [noisy.interpolatedValues, { colorPerc: 1 }],
+        [noisy.lightState.pointLight, { distance: 2, radius: 5 }],
+        [noisy.lightState.pointLight.color, { ...[1, 1, 1] }],
+        [noisy.lightState.ambientLight, { intensity: 0.3 }],
+        [noisy.lightState.dirLight, { intensity: 0.9 }],
+        [noisy.cameraState.center, { ...[0, 0, 0] }],
+        [noisy.cameraState, { phi: Math.PI / 6 }],
+      ],
+      [
+        [noisy.cameraState, { theta: -Math.PI / 4, phi: -Math.PI * 0.02, distance: 1.3 }],
+        [noisy.interpolatedValues, { maxRadius: 0.95, envPerc: 1 }],
+        [noisy.lightState.pointLight, { intensity: 0, distance: 5 }],
+        [noisy.lightState.dirLight, { intensity: 1 }],
+        [noisy.lightState.ambientLight, { intensity: 0.8 }],
+      ],
+    ],
+    opts
+  )
 
   const scrollMessage = {
     el: $('#scroll-message'),
@@ -65,7 +74,9 @@ import { $, fetchImges } from './utils'
     },
   }
 
-  const swiper = new Swiper('.swiper-container', {
+  Swiper.use([Mousewheel])
+  // eslint-disable-next-line
+  new Swiper('.swiper-container', {
     direction: 'vertical',
     slidesPerView: 1,
     spaceBetween: 30,
