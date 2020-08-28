@@ -24,12 +24,15 @@ import { fetchAssets } from './lib/fetchAssets'
   const opts = { duration: 1, ease: 'power2.inOut' }
   const timeline = buildTimeline(
     [
+      // AMBIENT LIGHT
       [
         [noisy.lightState.dirLight, { intensity: 0.7 }],
         [noisy.lightState.ambientLight, { intensity: 0.1 }],
         [noisy.cameraState.center, { ...[0, 1, 0], ease: 'power2.linear' }],
         [noisy.cameraState, { distance: 1, ease: 'power2.linear' }],
       ],
+
+      // POINT LIGHT
       [
         [noisy.cameraState, { distance: 2 }],
         [noisy.cameraState.center, { ...[-1, 0.25, 0] }],
@@ -37,28 +40,36 @@ import { fetchAssets } from './lib/fetchAssets'
         [noisy.cameraState, { phi: Math.PI / 4 }],
       ],
 
+      // NOISE IN VERTEX
       [
         [noisy.cameraState.center, { ...[0, 0, -1] }],
-        [noisy.cameraState, { distance: 1.8, phi: 0, theta: -Math.PI / 6 }],
+        [noisy.cameraState, { distance: 1.5, phi: 0, theta: -Math.PI / 6 }],
         [noisy.interpolatedValues, { noisePerc: 1 }],
         [noisy.lightState.pointLight.color, { ...[1, 0, 1] }],
         [noisy.lightState.pointLight, { radius: 4 }],
       ],
+
+      // NOISE IN FRAGMENT
       [
         [noisy.interpolatedValues, { colorPerc: 1 }],
         [noisy.lightState.pointLight, { distance: 2, radius: 5 }],
         [noisy.lightState.pointLight.color, { ...[1, 1, 1] }],
         [noisy.lightState.ambientLight, { intensity: 0.3 }],
         [noisy.lightState.dirLight, { intensity: 0.9 }],
-        [noisy.cameraState.center, { ...[0, 0, 0] }],
-        [noisy.cameraState, { phi: Math.PI / 6 }],
+
+        [noisy.cameraState.center, { ...[0, -0.85, 0] }],
+        [noisy.cameraState, { phi: Math.PI / 6, theta: -Math.PI, distance: 1.5 }],
       ],
+
+      // SKYBOX
       [
-        [noisy.cameraState, { theta: -Math.PI / 4, phi: -Math.PI * 0.02, distance: 1.3 }],
         [noisy.interpolatedValues, { maxRadius: 0.95, envPerc: 1 }],
         [noisy.lightState.pointLight, { intensity: 0, distance: 5 }],
         [noisy.lightState.dirLight, { intensity: 1 }],
         [noisy.lightState.ambientLight, { intensity: 0.8 }],
+
+        [noisy.cameraState.center, { ...[0, 0, 0] }],
+        [noisy.cameraState, { theta: -Math.PI / 4, phi: -Math.PI * 0.02, distance: 1.3 }],
       ],
     ],
     opts

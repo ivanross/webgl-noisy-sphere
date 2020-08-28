@@ -9,6 +9,7 @@ uniform float time;
 uniform float noisePerc;
 uniform float minRadius;
 uniform float maxRadius;
+uniform float timeNoise;
 
 varying float noiseAmt;
 varying float noiseAmt2;
@@ -17,8 +18,8 @@ varying vec3 fragWorldPos;
 
 float noise(vec3 x){
   if(noisePerc==0.)return 1.;
-  float n1=snoise(vec4(x,time))*.5+.5;
-  float n2=snoise(vec4(x*4.,time))*.5+.5;
+  float n1=snoise(vec4(x,timeNoise))*.5+.5;
+  float n2=snoise(vec4(x*4.,timeNoise))*.5+.5;
   float n=mix(n1,n1*n2*n2,.25);
   
   return n*noisePerc;

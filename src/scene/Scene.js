@@ -88,6 +88,7 @@ export class Scene {
         model: mat4.identity([]),
         normal: () => mat3.fromMat4([], mat4.transpose([], mat4.invert([], mat4.identity([])))),
         time: this.regl.context('time'),
+        timeNoise: this.regl.prop('timeNoise'),
         colorPerc: () => this.interpolatedValues.colorPerc,
         noisePerc: () => this.interpolatedValues.noisePerc,
         minRadius: () => this.interpolatedValues.minRadius,
@@ -143,10 +144,15 @@ export class Scene {
 
     this.regl.frame(() => {
       try {
+        this.timeNoise += debugState.noiseSpeed / 60
+
         this.regl.clear({ color: [0, 0, 0, 1] })
         this.camera(this.cameraState, () => {
           this.lights(this.lightState, ({ pointLightPos }) => {
-            this.drawSphere({ envPerc: this.interpolatedValues.envPerc })
+            this.drawSphere({
+              envPerc: this.interpolatedValues.envPerc,
+              timeNoise: this.timeNoise,
+            })
 
             if (this.interpolatedValues.envPerc > 0) {
               this.drawSkybox({ perc: this.interpolatedValues.envPerc })
@@ -154,6 +160,10 @@ export class Scene {
 
             if (debugState.axis) {
               this.drawAxes()
+              this.drawPoint({
+                position: this.cameraState.center,
+                color: [1, 0, 1, 1],
+              })
             }
 
             if (this.lightState.pointLight.intensity > 0) {
@@ -188,6 +198,7 @@ export class Scene {
   }
 
   mouse = { x: 0, y: 0 }
+  timeNoise = 0
 
   lightState = {
     ambientLight: {

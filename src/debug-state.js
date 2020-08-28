@@ -5,6 +5,7 @@ const DEBUG = new URL(window.location.href).searchParams.has('debug')
 
 export const debugState = State({
   axis: DEBUG,
+  noiseSpeed: State.Slider(1, { min: 0, max: 4, step: 0.01 }),
 })
 
 DEBUG &&
