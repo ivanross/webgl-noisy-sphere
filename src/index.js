@@ -1,4 +1,5 @@
-import Swiper, { Mousewheel } from 'swiper'
+import Swiper from 'swiper'
+import _ from 'lodash-es'
 import 'swiper/swiper-bundle.css'
 import '@accurat/tachyons-lite'
 import 'tachyons-extra'
@@ -85,14 +86,30 @@ import { fetchAssets } from './lib/fetchAssets'
     },
   }
 
-  Swiper.use([Mousewheel])
-  // eslint-disable-next-line
-  new Swiper('.swiper-container', {
+  function scrollDirection(fn) {
+    let prevDelta = 0
+    const debfn = _.debounce(fn, 200, { leading: true, trailing: false })
+
+    return function (e) {
+      const delta = e.deltaY
+
+      const isOppositeDirection = delta * prevDelta < 0
+      if (isOppositeDirection) prevDelta = 0
+
+      const isFasterThanBefore = Math.abs(delta) > Math.abs(prevDelta)
+      prevDelta = delta
+
+      const event = { direction: Math.sign(delta) }
+
+      if (isFasterThanBefore) debfn(event)
+    }
+  }
+
+  const swiper = new Swiper('.swiper-container', {
     direction: 'vertical',
     slidesPerView: 1,
-    spaceBetween: 30,
+    spaceBetween: 0,
     speed: opts.duration * 1000,
-    mousewheel: { eventsTarget: '.webgl-container', sensitivity: 0 },
     pagination: {
       el: '.swiper-pagination',
       clickable: true,
@@ -105,4 +122,15 @@ import { fetchAssets } from './lib/fetchAssets'
       },
     },
   })
+
+  window.addEventListener(
+    'mousewheel',
+    scrollDirection((e) => {
+      if (e.direction > 0) {
+        swiper.slideNext()
+      } else {
+        swiper.slidePrev()
+      }
+    })
+  )
 })()
