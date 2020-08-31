@@ -6,7 +6,7 @@ import mat4 from 'gl-mat4'
 import mouseChange from 'mouse-change'
 import vert from '../shaders/noisy.vert'
 import frag from '../shaders/noisy.frag'
-import { debugState } from '../debug-state'
+import { debugState, stats } from '../debug-state'
 import createAxis from './createAxis'
 import createSkybox from './createSkybox'
 import { $ } from '../lib/utils'
@@ -144,6 +144,8 @@ export class Scene {
 
     this.regl.frame(() => {
       try {
+        // eslint-disable-next-line
+        stats?.begin()
         this.timeNoise += debugState.noiseSpeed / 60
 
         this.regl.clear({ color: [0, 0, 0, 1] })
@@ -174,6 +176,8 @@ export class Scene {
             }
           })
         })
+        // eslint-disable-next-line
+        stats?.end()
       } catch (e) {
         console.error(e)
         console.log('🧨 DESTROY regl')

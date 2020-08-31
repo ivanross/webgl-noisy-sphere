@@ -1,5 +1,6 @@
 import State from 'controls-state'
 import GUI from 'controls-gui'
+import Stats from 'stats.js'
 
 const DEBUG = new URL(window.location.href).searchParams.has('debug')
 
@@ -13,3 +14,6 @@ DEBUG &&
     root: document.body,
     containerCSS: 'max-width:350px; position: fixed; top: 0; right: 0',
   })
+
+export const stats = DEBUG ? new Stats() : null
+DEBUG && document.body.appendChild(stats.dom)
