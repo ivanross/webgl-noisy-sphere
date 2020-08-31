@@ -1,6 +1,6 @@
 import _ from 'lodash-es'
 
-export function detectMouseWheelDirection(fn) {
+function detectMouseWheelDirection(fn) {
   let prevDelta = 0
 
   // debounce because on mac the delta has an initial increasing speed
@@ -19,4 +19,8 @@ export function detectMouseWheelDirection(fn) {
 
     if (isFasterThanBefore) debfn(event)
   }
+}
+
+export function onMouseWheelDirection(fn) {
+  window.addEventListener('mousewheel', detectMouseWheelDirection(fn))
 }

@@ -9,7 +9,8 @@ import { Scene } from './scene/Scene'
 import { El } from './lib/El'
 import { buildTimeline } from './lib/buildTimeline'
 import { fetchAssets } from './lib/fetchAssets'
-import { detectMouseWheelDirection } from './lib/detectMouseWheelDirection'
+import { onMouseWheelDirection } from './lib/onMouseWheelDirection'
+import { onTouchDirection } from './lib/onTouchDirection'
 
 const OPTS = { duration: 1, ease: 'power2.inOut' }
 
@@ -89,31 +90,31 @@ const OPTS = { duration: 1, ease: 'power2.inOut' }
   let slide = 0
   let canAnimate = true
 
-  window.addEventListener(
-    'mousewheel',
-    detectMouseWheelDirection((e) => {
-      // wait for the end of previous animation
-      if (!canAnimate) return
+  const handleUserDirection = ({ direction }) => {
+    // wait for the end of previous animation
+    if (!canAnimate) return
 
-      // Update visible slide
-      const prevSlide = slide
-      slide += e.direction
-      slide = _.clamp(slide, 0, swiper.slides.length - 1)
-      // early return if clamp to avoid blocking animation
-      if (prevSlide === slide) return
+    // Update visible slide
+    const prevSlide = slide
+    slide += direction
+    slide = _.clamp(slide, 0, swiper.slides.length - 1)
+    // early return if clamp to avoid blocking animation
+    if (prevSlide === slide) return
 
-      // change slide
-      swiper.slideTo(slide)
+    // change slide
+    swiper.slideTo(slide)
 
-      // Trigger Animation
-      timeline.tweenTo(String(slide))
+    // Trigger Animation
+    timeline.tweenTo(String(slide))
 
-      // Show/hide "scroll" message
-      if (slide === 0) scrollMessage.show()
-      else scrollMessage.hide()
+    // Show/hide "scroll" message
+    if (slide === 0) scrollMessage.show()
+    else scrollMessage.hide()
 
-      canAnimate = false
-      setTimeout(() => (canAnimate = true), 750)
-    })
-  )
+    canAnimate = false
+    setTimeout(() => (canAnimate = true), 750)
+  }
+
+  onMouseWheelDirection(handleUserDirection)
+  onTouchDirection(handleUserDirection)
 })()
