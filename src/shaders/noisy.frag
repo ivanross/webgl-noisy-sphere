@@ -1,4 +1,4 @@
-precision mediump float;
+precision highp float;
 varying float noiseAmt;
 varying float noiseAmt2;
 varying vec3 fragNrm;
