@@ -6,9 +6,13 @@ import 'tachyons-extra'
 import './reset.css'
 import './style.css'
 import { Scene } from './scene/Scene'
-import { $ } from './lib/utils'
+import { El } from './lib/El'
 import { buildTimeline } from './lib/buildTimeline'
 import { fetchAssets } from './lib/fetchAssets'
+import { detectMouseWheelDirection } from './lib/detectMouseWheelDirection'
+
+const OPTS = { duration: 1, ease: 'power2.inOut' }
+
 ;(async function () {
   const assets = await fetchAssets({
     posX: 'positive_x.png',
@@ -21,8 +25,14 @@ import { fetchAssets } from './lib/fetchAssets'
   })
 
   const noisy = new Scene('.webgl-container', assets)
+  const scrollMessage = new El('#scroll-message')
+  const swiper = new Swiper('.swiper-container', {
+    direction: 'vertical',
+    slidesPerView: 1,
+    spaceBetween: 0,
+    speed: OPTS.duration * 1000,
+  })
 
-  const opts = { duration: 1, ease: 'power2.inOut' }
   const timeline = buildTimeline(
     [
       // AMBIENT LIGHT
@@ -73,64 +83,37 @@ import { fetchAssets } from './lib/fetchAssets'
         [noisy.cameraState, { theta: -Math.PI / 4, phi: -Math.PI * 0.02, distance: 1.3 }],
       ],
     ],
-    opts
+    OPTS
   )
 
-  const scrollMessage = {
-    el: $('#scroll-message'),
-    show() {
-      this.el.style.opacity = 1
-    },
-    hide() {
-      this.el.style.opacity = 0
-    },
-  }
-
-  function scrollDirection(fn) {
-    let prevDelta = 0
-    const debfn = _.debounce(fn, 200, { leading: true, trailing: false })
-
-    return function (e) {
-      const delta = e.deltaY
-
-      const isOppositeDirection = delta * prevDelta < 0
-      if (isOppositeDirection) prevDelta = 0
-
-      const isFasterThanBefore = Math.abs(delta) > Math.abs(prevDelta)
-      prevDelta = delta
-
-      const event = { direction: Math.sign(delta) }
-
-      if (isFasterThanBefore) debfn(event)
-    }
-  }
-
-  const swiper = new Swiper('.swiper-container', {
-    direction: 'vertical',
-    slidesPerView: 1,
-    spaceBetween: 0,
-    speed: opts.duration * 1000,
-    pagination: {
-      el: '.swiper-pagination',
-      clickable: true,
-    },
-    on: {
-      slideChange: (e) => {
-        timeline.tweenTo(String(e.activeIndex))
-        if (e.activeIndex === 0) scrollMessage.show()
-        else scrollMessage.hide()
-      },
-    },
-  })
+  let slide = 0
+  let canAnimate = true
 
   window.addEventListener(
     'mousewheel',
-    scrollDirection((e) => {
-      if (e.direction > 0) {
-        swiper.slideNext()
-      } else {
-        swiper.slidePrev()
-      }
+    detectMouseWheelDirection((e) => {
+      // wait for the end of previous animation
+      if (!canAnimate) return
+
+      // Update visible slide
+      const prevSlide = slide
+      slide += e.direction
+      slide = _.clamp(slide, 0, swiper.slides.length - 1)
+      // early return if clamp to avoid blocking animation
+      if (prevSlide === slide) return
+
+      // change slide
+      swiper.slideTo(slide)
+
+      // Trigger Animation
+      timeline.tweenTo(String(slide))
+
+      // Show/hide "scroll" message
+      if (slide === 0) scrollMessage.show()
+      else scrollMessage.hide()
+
+      canAnimate = false
+      setTimeout(() => (canAnimate = true), 750)
     })
   )
 })()
